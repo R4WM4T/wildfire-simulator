@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "grid.h"
+#include "llist.h"
 
 struct gridInstance* create_new_grid(size_t h, size_t l)
 {
@@ -26,7 +27,11 @@ struct gridInstance* create_new_grid(size_t h, size_t l)
     res->grid = grid;
     res->h = h;
     res->l = l;
+    // Probability
+    res->p = 0.3;
+    res->nb_burnings = 0;
     res->total_size = h * l;
+    res->burning_tiles = NULL;
 
     return res;
 }
@@ -52,10 +57,18 @@ int init_burning_tiles(struct gridInstance *grid_instance, unsigned long initial
         }
 
         // Place and decrement
-        grid_instance->grid[rand_pos] = Burning;
+        extend_fire(grid_instance, &grid_instance->burning_tiles,
+                rand_pos / grid_instance->l, rand_pos % grid_instance->l);
         to_put -= 1;
     }
 
     // Return total initially burning tiles
     return initially_burning;
+}
+
+void clear_grid_instance(struct gridInstance *grid_instance)
+{
+    free(grid_instance->grid);
+    clear_burning_list(grid_instance->burning_tiles);
+    free(grid_instance);
 }

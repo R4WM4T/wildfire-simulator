@@ -1,9 +1,12 @@
 CC=gcc
-CFLAGS=-Wall -Werror -Wextra -pedantic -std=c99 -Wvla
+CFLAGS=-Wall -Werror -Wextra -pedantic -std=c99 -Wvla -g
 LDLIBS=-lcriterion
 
 OBJS=src/grid_display.o \
 	 src/grid_init_destroy.o\
+	 src/grid.o\
+	 src/llist.o\
+	 src/grid_iterator.o\
 	 src/main.o
 
 DEBUG_OBJS=src/grid_display.o \

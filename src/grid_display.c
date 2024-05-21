@@ -12,18 +12,33 @@ void display_grid(struct gridInstance *grid_instance)
 
     char* states_format[] =
     {
-        [Woodland] = "w",
+        [Woodland] = "T",
         [Burning] = "#",
         [Ashes] = ".",
     };
 
+    printf("|");
+    for (size_t j = 0; j < grid_instance->l; j++)
+    {
+        printf("---");
+    }
+    printf("|\n");
+
     for (size_t i = 0; i < grid_instance->h; i++)
     {
+        printf("|");
         for (size_t j = 0; j < grid_instance->l; j++)
         {
-            printf("|%s|", states_format[grid_instance->grid[i * grid_instance->l + j]]);
+            printf(" %s ", states_format[grid_instance->grid[i * grid_instance->l + j]]);
         }
 
-        printf("\n");
+        printf("|\n");
     }
+
+    printf("|");
+    for (size_t j = 0; j < grid_instance->l; j++)
+    {
+        printf("---");
+    }
+    printf("|\n");
 }

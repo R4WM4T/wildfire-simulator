@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "grid.h"
+#include "grid_display.h"
 #include "llist.h"
 
 int rand_P(double p)
@@ -53,4 +54,21 @@ int next_tick(struct gridInstance *my_grid)
     my_grid->burning_tiles = next_tick_burnings;
 
     return 1;
+}
+
+void launch_simulation(struct gridInstance *myGrid)
+{
+    size_t nb_max_gen = 50;
+    size_t i = 0;
+    while (i < nb_max_gen && myGrid->nb_burnings > 0)
+    {
+        printf("TICK %zu -- %zu tiles burning\n", i, myGrid->nb_burnings);
+        display_grid(myGrid);
+
+        next_tick(myGrid);
+
+        printf("\n");
+
+        i += 1;
+    }
 }

@@ -10,7 +10,7 @@ int in_grid(struct gridInstance *my_grid, size_t i, size_t j)
 int extend_fire(struct gridInstance *my_grid,
         struct burning_list **next_tick_burnings, size_t i, size_t j)
 {
-    if (my_grid->grid[i * my_grid->l + j] == Ashes)
+    if (my_grid->grid[i * my_grid->l + j] != Woodland)
     {
         return 0;
     }

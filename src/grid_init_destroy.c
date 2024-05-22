@@ -1,10 +1,12 @@
+#include "grid_init_destroy.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "grid.h"
+#include "input_parser.h"
 #include "llist.h"
 
-struct gridInstance* create_new_grid(size_t h, size_t l)
+struct gridInstance* create_new_grid(struct inputValues *input_values)
 {
     // Returns a dynamicly-allocated grid
     struct gridInstance *res = malloc(sizeof(struct gridInstance));
@@ -15,7 +17,7 @@ struct gridInstance* create_new_grid(size_t h, size_t l)
     }
 
     // Calloc grid in order to get Woodland(= 0) at first
-    int *grid = calloc(h * l, sizeof(int));
+    int *grid = calloc(input_values->h * input_values->l, sizeof(int));
     if (!grid)
     {
         fprintf(stderr, "Could not allocate a grid array\n");
@@ -25,45 +27,60 @@ struct gridInstance* create_new_grid(size_t h, size_t l)
 
     // In case everything successfull
     res->grid = grid;
-    res->h = h;
-    res->l = l;
+    res->h = input_values->h;
+    res->l = input_values->l;
     // Probability
-    res->p = 0.3;
+    res->p = input_values->p;
+
     res->nb_burnings = 0;
-    res->total_size = h * l;
-    res->burning_tiles = NULL;
+    res->total_size = input_values->h * input_values->l;
+
+    res->burning_tiles = input_values->burning_tiles;
+    input_values->burning_tiles = NULL;
+
+    init_burning_tiles(res);
 
     return res;
 }
 
-int init_burning_tiles(struct gridInstance *grid_instance, unsigned long initially_burning)
+int init_burning_tiles(struct gridInstance *grid_instance)
 {
-    if (grid_instance->h * grid_instance->l < initially_burning)
-    {
-        fprintf(stderr, "Too much initially burning tiles\n");
-        return 0;
-    }
 
-    unsigned long to_put = initially_burning;
-    while (to_put > 0)
-    {
-        // RAND_MAX big enough by default (>= 32767)
-        int rand_pos = rand() % grid_instance->total_size;
+    struct burning_list *prev = NULL;
+    struct burning_list *cur = grid_instance->burning_tiles;
 
-        while (grid_instance->grid[rand_pos] == Burning)
+    while (cur)
+    {
+        // Place and decrement
+        if (in_grid(grid_instance, cur->i, cur->j))
         {
-            // If already burning, avoid endless random calls
-            rand_pos = (rand_pos + 1) % grid_instance->total_size;
+            if (grid_instance->grid[cur->i * grid_instance->l + cur->j]!= Burning)
+            {
+                grid_instance->grid[cur->i * grid_instance->l + cur->j] = Burning;
+                grid_instance->nb_burnings += 1;
+            }
+        }
+        else
+        {
+            // Remove invalid coordinates
+            if (!prev)
+                grid_instance->burning_tiles = cur->next;
+            else
+                prev->next = cur->next;
+
+            // Destroy it
+            struct burning_list *to_free = cur;
+            cur = cur->next;
+            free(to_free);
+            continue;
         }
 
-        // Place and decrement
-        extend_fire(grid_instance, &grid_instance->burning_tiles,
-                rand_pos / grid_instance->l, rand_pos % grid_instance->l);
-        to_put -= 1;
+        prev = cur;
+        cur = cur->next;
     }
 
     // Return total initially burning tiles
-    return initially_burning;
+    return grid_instance->nb_burnings;
 }
 
 void clear_grid_instance(struct gridInstance *grid_instance)

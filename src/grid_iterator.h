@@ -3,6 +3,6 @@
 
 #include <stddef.h>
 
-int next_tick(struct gridInstance *my_grid);
+void launch_simulation(struct gridInstance *myGrid);
 
 #endif /* ! GRID_ITERATOR_H */
